@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./backend/.env
+    # This keeps your backend running even if it crashes momentarily
+    restart: unless-stopped 
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    # Tells Docker to start the backend first
+    depends_on:
+      - backend
+    restart: unless-stopped

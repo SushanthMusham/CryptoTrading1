@@ -1,0 +1,58 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model User {
+  id          String      @id @default(uuid())
+  email       String?     @unique
+  phone       String?     @unique
+  riskProfile String      @default("Moderate") // Feature 13: Aggressive, Moderate, Conservative
+  createdAt   DateTime    @default(now())
+  
+  trades      Trade[]
+  watchlists  Watchlist[]
+}
+
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  symbol    String   // e.g., "BTCUSDT"
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, symbol]) // A user can only watch a coin once
+}
+
+model Trade {
+  id          String   @id @default(uuid())
+  userId      String
+  symbol      String
+  tradeType   String   // "BUY" or "SELL"
+  entryPrice  Float
+  amount      Float
+  takeProfit  Float
+  stopLoss    Float
+  status      String   @default("OPEN") // "OPEN", "CLOSED_PROFIT", "CLOSED_LOSS"
+  pnl         Float?   // Profit/Loss when closed
+  createdAt   DateTime @default(now())
+  closedAt    DateTime?
+
+  user        User     @relation(fields: [userId], references: [id])
+}
+
+model AiSignalLog {
+  id              String   @id @default(uuid())
+  symbol          String
+  recommendedAction String // "BUY", "SELL", "HOLD"
+  confidence      Float
+  techAgentLog    String   // What the technical agent said
+  riskAgentLog    String   // What the risk agent said
+  judgeDecision   String   // The final ruling
+  createdAt       DateTime @default(now())
+}
