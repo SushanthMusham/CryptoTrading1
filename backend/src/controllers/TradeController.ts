@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
 import { binance } from '../index';
-import nodemailer from 'nodemailer';
+import axios from 'axios';
 
 export class TradeController {
     
@@ -49,37 +49,32 @@ export class TradeController {
             const user = await prisma.user.findUnique({ where: { id: userId } });
             
             if (user && user.email) {
-                const transporter = nodemailer.createTransport({
-                    host: 'smtp.gmail.com',
-                    port: 465,
-                    secure: true,
-                    auth: {
-                        user: process.env.EMAIL_USER,
-                        pass: process.env.EMAIL_PASS
-                    }
-                });
+                const emailHtml = `
+                    <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: white; border-radius: 10px;">
+                        <h2 style="color: #3b82f6;">Trading AI Execution Alert</h2>
+                        <p>Your dummy order has been successfully executed on the market.</p>
+                        <ul style="list-style: none; padding: 0;">
+                            <li><strong>Action:</strong> <span style="color: ${tradeType === 'BUY' ? '#10b981' : '#ef4444'}; font-weight: bold;">${tradeType}</span></li>
+                            <li><strong>Asset:</strong> ${symbol.toUpperCase()}</li>
+                            <li><strong>Entry Price:</strong> $${entryPrice.toFixed(2)}</li>
+                            <li><strong>Amount:</strong> $${amount}</li>
+                        </ul>
+                        <p style="color: #64748b; font-size: 12px;">This is an automated alert from your Trading AI War Room.</p>
+                    </div>
+                `;
 
-                const mailOptions = {
-                    from: process.env.EMAIL_USER,
+                // Send email asynchronously using Resend so it doesn't slow down the UI
+                axios.post('https://api.resend.com/emails', {
+                    from: 'onboarding@resend.dev',
                     to: user.email,
                     subject: `🚨 Trading AI Alert: ${tradeType} order executed for ${symbol.toUpperCase()}`,
-                    html: `
-                        <div style="font-family: Arial, sans-serif; padding: 20px; background-color: #0f172a; color: white; border-radius: 10px;">
-                            <h2 style="color: #3b82f6;">Trading AI Execution Alert</h2>
-                            <p>Your dummy order has been successfully executed on the market.</p>
-                            <ul style="list-style: none; padding: 0;">
-                                <li><strong>Action:</strong> <span style="color: ${tradeType === 'BUY' ? '#10b981' : '#ef4444'}; font-weight: bold;">${tradeType}</span></li>
-                                <li><strong>Asset:</strong> ${symbol.toUpperCase()}</li>
-                                <li><strong>Entry Price:</strong> $${entryPrice.toFixed(2)}</li>
-                                <li><strong>Amount:</strong> $${amount}</li>
-                            </ul>
-                            <p style="color: #64748b; font-size: 12px;">This is an automated alert from your Trading AI War Room.</p>
-                        </div>
-                    `
-                };
-
-                // Send email asynchronously so it doesn't slow down the UI
-                transporter.sendMail(mailOptions).catch(err => console.error("Failed to send trade email:", err));
+                    html: emailHtml
+                }, {
+                    headers: {
+                        'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                        'Content-Type': 'application/json'
+                    }
+                }).catch(err => console.error("Failed to send trade email:", err.response?.data || err.message));
             }
 
             console.log(`Trade Executed: ${tradeType} ${symbol} @ $${entryPrice} by User ${userId}`);
