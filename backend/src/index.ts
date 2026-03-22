@@ -1,3 +1,5 @@
+import dns from 'dns';
+dns.setDefaultResultOrder('ipv4first'); // for some issues with render 
 import { AuthController } from './controllers/AuthController';
 import { AiService } from './services/AiService';
 import prisma from './config/db'; 
