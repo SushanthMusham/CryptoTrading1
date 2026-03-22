@@ -84,7 +84,7 @@ export default function Dashboard() {
 
     const fetchHistory = async () => {
         try {
-            const res = await axios.get(`https://cryptotrading1.onrender.com/api/chart/${selectedCoin}`, {
+            const res = await axios.get(`https://cryptotrading1-asia.onrender.com/api/chart/${selectedCoin}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const historicalData = res.data.data;
@@ -96,7 +96,7 @@ export default function Dashboard() {
     };
     fetchHistory();
 
-    const socket = io('https://cryptotrading1.onrender.com');
+    const socket = io('https://cryptotrading1-asia.onrender.com');
     socket.on('initial-state', (data: TickerData[]) => {
       const priceMap: Record<string, TickerData> = {};
       data.forEach(item => priceMap[item.symbol] = item);
@@ -144,7 +144,7 @@ export default function Dashboard() {
   const fetchPortfolio = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('https://cryptotrading1.onrender.com/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
+      const res = await axios.get('https://cryptotrading1-asia.onrender.com/api/portfolio', { headers: { Authorization: `Bearer ${token}` } });
       setPortfolio(res.data.portfolio.trades);
     } catch (err) { console.error("Failed to fetch portfolio", err); }
   };
@@ -152,7 +152,7 @@ export default function Dashboard() {
   const executeTrade = async (type: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post('https://cryptotrading1.onrender.com/api/trades', {
+      await axios.post('https://cryptotrading1-asia.onrender.com/api/trades', {
         symbol: selectedCoin, tradeType: type, amount: Number(tradeAmount)
       }, { headers: { Authorization: `Bearer ${token}` } });
       fetchPortfolio(); 
@@ -162,7 +162,7 @@ export default function Dashboard() {
   const closeTrade = async (id: string) => {
     try {
       const token = localStorage.getItem('token');
-      await axios.post(`https://cryptotrading1.onrender.com/api/trades/${id}/close`, {}, { headers: { Authorization: `Bearer ${token}` } });
+      await axios.post(`https://cryptotrading1-asia.onrender.com/api/trades/${id}/close`, {}, { headers: { Authorization: `Bearer ${token}` } });
       fetchPortfolio(); 
     } catch (err) { console.error("Close failed", err); }
   };
@@ -172,7 +172,7 @@ export default function Dashboard() {
     setAiVerdict(null);
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.post(`https://cryptotrading1.onrender.com/api/analyze/${selectedCoin}`, {}, {
+      const res = await axios.post(`https://cryptotrading1-asia.onrender.com/api/analyze/${selectedCoin}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAiVerdict(res.data.data);

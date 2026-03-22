@@ -16,7 +16,7 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      await axios.post('https://cryptotrading1.onrender.com/api/auth/send-otp', { email });
+      await axios.post('https://cryptotrading1-asia.onrender.com/api/auth/send-otp', { email });
       setStep('otp');
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to send OTP');
@@ -29,7 +29,7 @@ export default function Login() {
     setLoading(true);
     setError('');
     try {
-      const response = await axios.post('https://cryptotrading1.onrender.com/api/auth/verify-otp', { email, otp });
+      const response = await axios.post('https://cryptotrading1-asia.onrender.com/api/auth/verify-otp', { email, otp });
       // Save the VIP pass to local storage
       localStorage.setItem('token', response.data.token);
       // Send them to the trading dashboard
