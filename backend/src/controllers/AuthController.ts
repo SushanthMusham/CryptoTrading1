@@ -1,33 +1,10 @@
 import { Request, Response } from 'express';
-import nodemailer from 'nodemailer';
+import axios from 'axios';
 import jwt from 'jsonwebtoken';
 import prisma from '../config/db';
 
-
 // Stores: Map<Email, { otp: string, expiresAt: number }>
 const otpCache = new Map<string, { otp: string; expiresAt: number }>();
-
-// NODEMAILER SETUP
-const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    }
-});
-
-// const transporter = nodemailer.createTransport({
-//     host: 'smtp.gmail.com',
-//     port: 587,
-//     secure: false, // false for 587, true for 465
-//     requireTLS: true,
-//     auth: {
-//         user: process.env.EMAIL_USER,
-//         pass: process.env.EMAIL_PASS
-//     }
-// });
 
 export class AuthController {
     
@@ -35,7 +12,6 @@ export class AuthController {
     public static async sendOtp(req: Request, res: Response): Promise<any> {
         
         console.log(`\n🛎️ OTP Request received for:`, req.body.email);
-        console.log(`🔐 Email User loaded:`, process.env.EMAIL_USER ? "YES" : "NO");
         
         const { email } = req.body;
         if (!email) return res.status(400).json({ error: "Email is required" });
@@ -47,8 +23,8 @@ export class AuthController {
         otpCache.set(email, { otp, expiresAt: Date.now() + 300000 });
 
         try {
-            await transporter.sendMail({
-                from: `"Trading Platform AI" <${process.env.EMAIL_USER}>`,
+            await axios.post('https://api.resend.com/emails', {
+                from: 'onboarding@resend.dev',
                 to: email,
                 subject: "Your Trading Platform Login Code",
                 html: `
@@ -59,6 +35,11 @@ export class AuthController {
                         <p>This code expires in 5 minutes.</p>
                     </div>
                 `
+            }, {
+                headers: {
+                    'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
+                    'Content-Type': 'application/json'
+                }
             });
             
             console.log(`OTP sent successfully to ${email}`);
