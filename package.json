@@ -1,0 +1,20 @@
+{
+  "name": "cryptotrading1",
+  "version": "1.0.0",
+  "description": "find it here : https://drive.google.com/file/d/1lVegHed3iDEpXeVF-jA1NI6y4mbrojVB/view?usp=share_link",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SushanthMusham/CryptoTrading1.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/SushanthMusham/CryptoTrading1/issues"
+  },
+  "homepage": "https://github.com/SushanthMusham/CryptoTrading1#readme"
+}
